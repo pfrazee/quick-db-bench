@@ -1,11 +1,13 @@
 import express, { Request, Response } from 'express'
 import dotenv from 'dotenv'
 import { db } from './database.js'
+import * as indexer from './indexer'
 
 dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || 3000
+const NEXUS_PORT = process.env.NEXUS_PORT || 8080
 
 app.use(express.json())
 
@@ -162,6 +164,40 @@ app.get('/followers/:handle', async (req: Request, res: Response) => {
   }
 })
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, async () => {
   console.log(`Server is running on http://localhost:${PORT}`)
+  await indexer.start(`http://localhost:${NEXUS_PORT}`)
+  console.log(`Connected to nexus at http://localhost:${NEXUS_PORT}`)
 })
+
+// Graceful shutdown handler
+async function shutdown(signal: string) {
+  console.log(`\n${signal} received. Starting graceful shutdown...`)
+
+  // Stop accepting new requests
+  server.close(() => {
+    console.log('HTTP server closed')
+  })
+
+  try {
+    // Stop the indexer
+    console.log('Stopping indexer...')
+    await indexer.destroy()
+    console.log('Indexer stopped')
+
+    // Close database connection
+    console.log('Closing database connection...')
+    await db.destroy()
+    console.log('Database connection closed')
+
+    console.log('Graceful shutdown complete')
+    process.exit(0)
+  } catch (error) {
+    console.error('Error during shutdown:', error)
+    process.exit(1)
+  }
+}
+
+// Listen for termination signals
+process.on('SIGINT', () => shutdown('SIGINT'))
+process.on('SIGTERM', () => shutdown('SIGTERM'))
