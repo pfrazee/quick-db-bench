@@ -1,5 +1,6 @@
-import { Kysely, MysqlDialect } from 'kysely';
-import { createPool } from 'mysql2';
+import { Kysely, MysqlDialect } from 'kysely'
+import { createPool } from 'mysql2'
+import { Database } from './types/database.js'
 
 const dialect = new MysqlDialect({
   pool: createPool({
@@ -12,8 +13,8 @@ const dialect = new MysqlDialect({
     connectionLimit: 10,
     queueLimit: 0
   })
-});
+})
 
-export const db = new Kysely({
+export const db = new Kysely<Database>({
   dialect
-});
+})

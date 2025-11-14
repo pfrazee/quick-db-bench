@@ -2,18 +2,19 @@
   "name": "express-mysql-app",
   "version": "1.0.0",
   "description": "Express.js application with MySQL and Kysely",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "node --watch src/index.js",
-    "migrate": "node src/scripts/migrate.js",
-    "migrate:up": "node src/scripts/migrate.js up",
-    "migrate:down": "node src/scripts/migrate.js down",
-    "migrate:status": "node src/scripts/migrate.js status",
-    "migrate:create": "node src/scripts/create-migration.js"
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "migrate": "tsx src/scripts/migrate.ts",
+    "migrate:up": "tsx src/scripts/migrate.ts up",
+    "migrate:down": "tsx src/scripts/migrate.ts down",
+    "migrate:status": "tsx src/scripts/migrate.ts status",
+    "migrate:create": "tsx src/scripts/create-migration.ts"
   },
-  "keywords": ["express", "mysql", "kysely"],
+  "keywords": ["express", "mysql", "kysely", "typescript"],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -21,5 +22,11 @@
     "kysely": "^0.27.3",
     "mysql2": "^3.6.5",
     "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.5",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
   }
 }

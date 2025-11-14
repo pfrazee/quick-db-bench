@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Request, Response } from 'express'
 import dotenv from 'dotenv'
 import { db } from './database.js'
 
@@ -9,21 +9,22 @@ const PORT = process.env.PORT || 3000
 
 app.use(express.json())
 
-app.get('/health', (req, res) => {
+app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', message: 'Server is running' })
 })
 
 // Profiles endpoints
-app.get('/profiles', async (req, res) => {
+app.get('/profiles', async (req: Request, res: Response) => {
   try {
     const profiles = await db.selectFrom('profiles').selectAll().execute()
     res.json(profiles)
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    res.status(500).json({ error: message })
   }
 })
 
-app.get('/profiles/:handle', async (req, res) => {
+app.get('/profiles/:handle', async (req: Request, res: Response) => {
   try {
     const profile = await db
       .selectFrom('profiles')
@@ -32,20 +33,22 @@ app.get('/profiles/:handle', async (req, res) => {
       .executeTakeFirst()
 
     if (!profile) {
-      return res.status(404).json({ error: 'Profile not found' })
+      res.status(404).json({ error: 'Profile not found' })
+      return
     }
 
     res.json(profile)
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    res.status(500).json({ error: message })
   }
 })
 
 // Posts endpoints
-app.get('/posts', async (req, res) => {
+app.get('/posts', async (req: Request, res: Response) => {
   try {
-    const limit = parseInt(req.query.limit) || 50
-    const offset = parseInt(req.query.offset) || 0
+    const limit = parseInt(req.query.limit as string) || 50
+    const offset = parseInt(req.query.offset as string) || 0
 
     const posts = await db
       .selectFrom('posts')
@@ -57,14 +60,15 @@ app.get('/posts', async (req, res) => {
 
     res.json(posts)
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    res.status(500).json({ error: message })
   }
 })
 
-app.get('/posts/:handle', async (req, res) => {
+app.get('/posts/:handle', async (req: Request, res: Response) => {
   try {
-    const limit = parseInt(req.query.limit) || 50
-    const offset = parseInt(req.query.offset) || 0
+    const limit = parseInt(req.query.limit as string) || 50
+    const offset = parseInt(req.query.offset as string) || 0
 
     const profile = await db
       .selectFrom('profiles')
@@ -73,7 +77,8 @@ app.get('/posts/:handle', async (req, res) => {
       .executeTakeFirst()
 
     if (!profile) {
-      return res.status(404).json({ error: 'Profile not found' })
+      res.status(404).json({ error: 'Profile not found' })
+      return
     }
 
     const posts = await db
@@ -87,15 +92,16 @@ app.get('/posts/:handle', async (req, res) => {
 
     res.json(posts)
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    res.status(500).json({ error: message })
   }
 })
 
 // Follows endpoints
-app.get('/follows/:handle', async (req, res) => {
+app.get('/follows/:handle', async (req: Request, res: Response) => {
   try {
-    const limit = parseInt(req.query.limit) || 50
-    const offset = parseInt(req.query.offset) || 0
+    const limit = parseInt(req.query.limit as string) || 50
+    const offset = parseInt(req.query.offset as string) || 0
 
     const profile = await db
       .selectFrom('profiles')
@@ -104,7 +110,8 @@ app.get('/follows/:handle', async (req, res) => {
       .executeTakeFirst()
 
     if (!profile) {
-      return res.status(404).json({ error: 'Profile not found' })
+      res.status(404).json({ error: 'Profile not found' })
+      return
     }
 
     const follows = await db
@@ -118,14 +125,15 @@ app.get('/follows/:handle', async (req, res) => {
 
     res.json(follows)
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    res.status(500).json({ error: message })
   }
 })
 
-app.get('/followers/:handle', async (req, res) => {
+app.get('/followers/:handle', async (req: Request, res: Response) => {
   try {
-    const limit = parseInt(req.query.limit) || 50
-    const offset = parseInt(req.query.offset) || 0
+    const limit = parseInt(req.query.limit as string) || 50
+    const offset = parseInt(req.query.offset as string) || 0
 
     const profile = await db
       .selectFrom('profiles')
@@ -134,7 +142,8 @@ app.get('/followers/:handle', async (req, res) => {
       .executeTakeFirst()
 
     if (!profile) {
-      return res.status(404).json({ error: 'Profile not found' })
+      res.status(404).json({ error: 'Profile not found' })
+      return
     }
 
     const followers = await db
@@ -148,7 +157,8 @@ app.get('/followers/:handle', async (req, res) => {
 
     res.json(followers)
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    res.status(500).json({ error: message })
   }
 })
 

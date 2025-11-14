@@ -26,6 +26,11 @@ dist/
 build/
 out/
 
+# TypeScript
+*.tsbuildinfo
+*.js.map
+*.d.ts.map
+
 # Coverage directory
 coverage/
 .nyc_output/
