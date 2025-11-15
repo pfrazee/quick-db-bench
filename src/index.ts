@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express'
 import dotenv from 'dotenv'
-import { db } from './database.js'
-import * as indexer from './indexer'
+import * as db from './database.js'
+import * as indexer from './indexer/index.js'
 
 dotenv.config()
 
@@ -11,14 +11,18 @@ const NEXUS_PORT = process.env.NEXUS_PORT || 8080
 
 app.use(express.json())
 
-app.get('/health', (req: Request, res: Response) => {
+app.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', message: 'Server is running' })
 })
 
 // Profiles endpoints
-app.get('/profiles', async (req: Request, res: Response) => {
+app.get('/profiles', async (_req: Request, res: Response) => {
   try {
-    const profiles = await db.selectFrom('profiles').selectAll().execute()
+    const profiles = await db
+      .inst()
+      .selectFrom('profiles')
+      .selectAll()
+      .execute()
     res.json(profiles)
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
@@ -29,6 +33,7 @@ app.get('/profiles', async (req: Request, res: Response) => {
 app.get('/profiles/:handle', async (req: Request, res: Response) => {
   try {
     const profile = await db
+      .inst()
       .selectFrom('profiles')
       .selectAll()
       .where('handle', '=', decodeURIComponent(req.params.handle))
@@ -53,6 +58,7 @@ app.get('/posts', async (req: Request, res: Response) => {
     const offset = parseInt(req.query.offset as string) || 0
 
     const posts = await db
+      .inst()
       .selectFrom('posts')
       .selectAll()
       .orderBy('createdAt', 'desc')
@@ -73,6 +79,7 @@ app.get('/posts/:handle', async (req: Request, res: Response) => {
     const offset = parseInt(req.query.offset as string) || 0
 
     const profile = await db
+      .inst()
       .selectFrom('profiles')
       .selectAll()
       .where('handle', '=', decodeURIComponent(req.params.handle))
@@ -84,6 +91,7 @@ app.get('/posts/:handle', async (req: Request, res: Response) => {
     }
 
     const posts = await db
+      .inst()
       .selectFrom('posts')
       .selectAll()
       .orderBy('createdAt', 'desc')
@@ -106,6 +114,7 @@ app.get('/follows/:handle', async (req: Request, res: Response) => {
     const offset = parseInt(req.query.offset as string) || 0
 
     const profile = await db
+      .inst()
       .selectFrom('profiles')
       .selectAll()
       .where('handle', '=', decodeURIComponent(req.params.handle))
@@ -117,6 +126,7 @@ app.get('/follows/:handle', async (req: Request, res: Response) => {
     }
 
     const follows = await db
+      .inst()
       .selectFrom('follows')
       .selectAll()
       .orderBy('createdAt', 'desc')
@@ -138,6 +148,7 @@ app.get('/followers/:handle', async (req: Request, res: Response) => {
     const offset = parseInt(req.query.offset as string) || 0
 
     const profile = await db
+      .inst()
       .selectFrom('profiles')
       .selectAll()
       .where('handle', '=', decodeURIComponent(req.params.handle))
@@ -149,6 +160,7 @@ app.get('/followers/:handle', async (req: Request, res: Response) => {
     }
 
     const followers = await db
+      .inst()
       .selectFrom('follows')
       .selectAll()
       .orderBy('createdAt', 'desc')
@@ -166,6 +178,8 @@ app.get('/followers/:handle', async (req: Request, res: Response) => {
 
 const server = app.listen(PORT, async () => {
   console.log(`Server is running on http://localhost:${PORT}`)
+  await db.start()
+  console.log(`Database connection established`)
   await indexer.start(`http://localhost:${NEXUS_PORT}`)
   console.log(`Connected to nexus at http://localhost:${NEXUS_PORT}`)
 })

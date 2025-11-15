@@ -1,4 +1,4 @@
-import { Generated, ColumnType } from 'kysely'
+import { ColumnType } from 'kysely'
 
 // Common fields for all tables
 interface CommonFields {
@@ -8,7 +8,9 @@ interface CommonFields {
   _indexedAt: ColumnType<Date, Date | undefined, Date>
 }
 
-export interface ProfilesTable extends CommonFields {
+export interface ProfilesTable {
+  _repo: string
+  _indexedAt: ColumnType<Date, Date | undefined, Date>
   handle: string
   displayName: string | null
   description: string | null

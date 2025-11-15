@@ -1,10 +1,10 @@
-import { HandlerOpts, NexusHandler } from './channel'
-import { NexusEvent, RecordEvent, UserEvent } from './events'
+import { HandlerOpts, NexusHandler } from './channel.js'
+import { NexusEvent, RecordEvent, UserEvent } from './events.js'
 
 type UserEventHandler = (evt: UserEvent, opts?: HandlerOpts) => Promise<void>
 type RecordEventHandler = (
   evt: RecordEvent,
-  opts?: HandlerOpts,
+  opts?: HandlerOpts
 ) => Promise<void>
 type ErrorHandler = (err: Error) => void
 

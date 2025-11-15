@@ -1,17 +1,39 @@
-import { Nexus, NexusChannel, SimpleIndexer } from '../vendor/nexus/src'
+import { jsonToLex } from '@atproto/api'
+import {
+  Nexus,
+  NexusChannel,
+  SimpleIndexer,
+} from '../vendor/nexus/src/index.js'
+import { onFollowRecord } from './tables/follow.js'
+import { onLikeRecord } from './tables/like.js'
+import { onPostRecord } from './tables/post.js'
+import { onProfileUser, onProfileRecord } from './tables/profile.js'
+import { onRepostRecord } from './tables/repost.js'
+import { onThreadgateRecord } from './tables/threadgate.js'
 
 let nexus: Nexus | null = null
 let channel: NexusChannel | null = null
 const indexer = new SimpleIndexer()
 
+indexer.user(onProfileUser)
+
 indexer.record(async (evt) => {
-  const uri = `at://${evt.did}/${evt.collection}/${evt.rkey}`
-  if (evt.action === 'create' || evt.action === 'update') {
-    console.log(
-      `record created/updated at ${uri}: ${JSON.stringify(evt.record)}`
-    )
-  } else {
-    console.log(`record deleted at ${uri}`)
+  evt.record = evt.record
+    ? (jsonToLex(evt.record) as Record<string, unknown>)
+    : undefined
+  switch (evt.collection) {
+    case 'app.bsky.actor.profile':
+      return onProfileRecord(evt)
+    case 'app.bsky.feed.post':
+      return onPostRecord(evt)
+    case 'app.bsky.feed.like':
+      return onLikeRecord(evt)
+    case 'app.bsky.feed.repost':
+      return onRepostRecord(evt)
+    case 'app.bsky.feed.threadgate':
+      return onThreadgateRecord(evt)
+    case 'app.bsky.graph.follow':
+      return onFollowRecord(evt)
   }
 })
 

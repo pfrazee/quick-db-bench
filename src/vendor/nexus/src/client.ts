@@ -1,4 +1,4 @@
-import { NexusChannel, NexusHandler, NexusWebsocketOptions } from './channel'
+import { NexusChannel, NexusHandler, NexusWebsocketOptions } from './channel.js'
 
 export class Nexus {
   url: string

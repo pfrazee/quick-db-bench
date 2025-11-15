@@ -14,23 +14,30 @@
     "migrate:status": "tsx src/scripts/migrate.ts status",
     "migrate:create": "tsx src/scripts/create-migration.ts"
   },
-  "keywords": ["express", "mysql", "kysely", "typescript"],
+  "keywords": [
+    "express",
+    "mysql",
+    "kysely",
+    "typescript"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@atproto/api": "^0.18.0",
+    "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "kysely": "^0.27.3",
-    "mysql2": "^3.6.5",
-    "dotenv": "^16.3.1"
+    "mysql2": "^3.6.5"
   },
   "devDependencies": {
     "@atproto/common": "latest",
     "@atproto/syntax": "latest",
     "@types/express": "^4.17.21",
     "@types/node": "^20.10.5",
+    "@types/ws": "^8.18.1",
     "tsx": "^4.7.0",
-    "typescript": "^5.3.3",
     "typed-emitter": "^2.1.0",
+    "typescript": "^5.3.3",
     "ws": "^8.12.0",
     "zod": "^4.1.12"
   }

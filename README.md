@@ -25,12 +25,12 @@ DB_HOST=localhost
 DB_PORT=3306
 DB_USER=root
 DB_PASSWORD=your_password
-DB_NAME=myapp
+DB_NAME=dbbench
 ```
 
 4. Create the database:
 ```bash
-mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS myapp;"
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS dbbench;"
 ```
 
 5. Run migrations to create tables:

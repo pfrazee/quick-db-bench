@@ -2,21 +2,23 @@ import { promises as fs } from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { Migrator, FileMigrationProvider } from 'kysely'
-import { db } from './database.js'
+import * as db from './database.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-export const migrator = new Migrator({
-  db,
-  provider: new FileMigrationProvider({
-    fs,
-    path,
-    migrationFolder: path.join(__dirname, 'migrations')
+function migrator() {
+  return new Migrator({
+    db: db.inst(),
+    provider: new FileMigrationProvider({
+      fs,
+      path,
+      migrationFolder: path.join(__dirname, 'migrations'),
+    }),
   })
-})
+}
 
 export async function migrateToLatest(): Promise<void> {
-  const { error, results } = await migrator.migrateToLatest()
+  const { error, results } = await migrator().migrateToLatest()
 
   results?.forEach((it) => {
     if (it.status === 'Success') {
@@ -36,7 +38,7 @@ export async function migrateToLatest(): Promise<void> {
 }
 
 export async function migrateDown(): Promise<void> {
-  const { error, results } = await migrator.migrateDown()
+  const { error, results } = await migrator().migrateDown()
 
   results?.forEach((it) => {
     if (it.status === 'Success') {
@@ -56,7 +58,7 @@ export async function migrateDown(): Promise<void> {
 }
 
 export async function migrationStatus(): Promise<void> {
-  const migrations = await migrator.getMigrations()
+  const migrations = await migrator().getMigrations()
 
   console.log('\nMigration Status:\n')
   migrations.forEach((migration) => {

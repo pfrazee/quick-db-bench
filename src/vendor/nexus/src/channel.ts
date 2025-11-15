@@ -1,7 +1,7 @@
 import { ClientOptions } from 'ws'
 import { Deferrable, createDeferrable, isErrnoException } from '@atproto/common'
-import { NexusEvent, parseNexusEvent } from './events'
-import { WebSocketKeepAlive } from './websocket-keepalive'
+import { NexusEvent, parseNexusEvent } from './events.js'
+import { WebSocketKeepAlive } from './websocket-keepalive.js'
 
 export interface HandlerOpts {
   signal: AbortSignal
@@ -35,7 +35,7 @@ export class NexusChannel {
   constructor(
     url: string,
     handler: NexusHandler,
-    wsOpts: NexusWebsocketOptions = {},
+    wsOpts: NexusWebsocketOptions = {}
   ) {
     this.abortController = new AbortController()
     this.destroyDefer = createDeferrable()
@@ -91,7 +91,7 @@ export class NexusChannel {
         this.handler.onError(
           new Error(`failed to send ack for event ${this.bufferedAcks[0]}`, {
             cause: err,
-          }),
+          })
         )
         return
       }
@@ -128,7 +128,7 @@ export class NexusChannel {
     } catch (err) {
       // Don't ack on error - let Nexus retry
       this.handler.onError(
-        new Error(`Failed to process event ${evt.id}`, { cause: err }),
+        new Error(`Failed to process event ${evt.id}`, { cause: err })
       )
       return
     }

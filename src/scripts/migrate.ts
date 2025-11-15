@@ -1,4 +1,5 @@
 import dotenv from 'dotenv'
+import * as db from '../database'
 import { migrateToLatest, migrateDown, migrationStatus } from '../migrator.js'
 
 dotenv.config()
@@ -7,6 +8,7 @@ const command = process.argv[2]
 
 async function main(): Promise<void> {
   console.log('Running migrations...\n')
+  await db.start()
 
   switch (command) {
     case 'up':
@@ -29,8 +31,9 @@ async function main(): Promise<void> {
       console.log('  up/latest - Run all pending migrations')
       console.log('  down      - Rollback the last migration')
       console.log('  status    - Show migration status')
-      process.exit(1)
   }
+
+  await db.destroy()
 }
 
 main().catch((error) => {
