@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express'
 import dotenv from 'dotenv'
 import * as db from './database.js'
 import * as indexer from './indexer/index.js'
+import { data100Users } from './data/100-users.js'
 
 dotenv.config()
 
@@ -13,6 +14,17 @@ app.use(express.json())
 
 app.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', message: 'Server is running' })
+})
+
+app.post('/scripts/backfill-test-1', async (_req: Request, res: Response) => {
+  try {
+    console.log('kicking off backfill test')
+    await indexer.addRepos(data100Users.dids)
+    res.json({ done: true })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
 })
 
 // Profiles endpoints

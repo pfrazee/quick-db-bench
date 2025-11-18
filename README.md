@@ -85,82 +85,30 @@ npm run migrate:create add_posts_table
 
 This will create a new migration file in `src/migrations/` with a template that you can fill in.
 
-### Migration Structure
+# Paul's actual notes
 
-Each migration file exports two functions:
-- `up(db)` - Applies the migration
-- `down(db)` - Reverts the migration
-
-Example migration:
-```javascript
-import { Kysely, sql } from 'kysely';
-
-export async function up(db) {
-  await db.schema
-    .createTable('posts')
-    .addColumn('id', 'integer', (col) => col.autoIncrement().primaryKey())
-    .addColumn('title', 'varchar(255)', (col) => col.notNull())
-    .addColumn('content', 'text')
-    .execute();
-}
-
-export async function down(db) {
-  await db.schema.dropTable('posts').execute();
-}
-```
-
-## API Endpoints
-
-### Health Check
-- **GET** `/health` - Check if the server is running
-
-### Users
-- **GET** `/users` - Get all users
-- **GET** `/users/:id` - Get a specific user by ID
-- **POST** `/users` - Create a new user
-  - Body: `{ "name": "John Doe", "email": "john@example.com" }`
-
-## Example Usage
-
-Get all users:
-```bash
-curl http://localhost:3000/users
-```
-
-Create a new user:
-```bash
-curl -X POST http://localhost:3000/users \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Alice Brown","email":"alice@example.com"}'
-```
-
-Get a specific user:
-```bash
-curl http://localhost:3000/users/1
-```
-
-## Project Structure
+Tab one:
 
 ```
-.
-├── src/
-│   ├── migrations/             # Database migrations
-│   │   └── 001_setup_db.js
-│   ├── scripts/                # CLI scripts
-│   │   ├── migrate.js          # Migration runner
-│   │   └── create-migration.js # Migration generator
-│   ├── index.js                # Express server and routes
-│   ├── database.js             # Kysely database configuration
-│   └── migrator.js             # Migration configuration
-├── schema.sql                  # Legacy schema (use migrations instead)
-├── package.json                # Project dependencies
-├── .env.example                # Environment variables template
-└── README.md                   # This file
+npm run migrate:down
+npm run migrate:up
 ```
 
-## Technology Stack
+Tab two:
 
-- **Express.js** - Web framework
-- **Kysely** - Type-safe SQL query builder
-- **mysql2** - MySQL client for Node.js
-- **dotenv** - Environment variable management
+```
+rm ../nexus.db
+sh scripts/start-nexus.sh
+```
+
+Tab three:
+
+```
+npm run build && npm start
+```
+
+Tab one:
+
+```
+sh scripts/backfill-test-1.sh
+```
