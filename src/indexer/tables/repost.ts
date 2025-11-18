@@ -1,6 +1,12 @@
 import { RecordEvent } from '../../vendor/nexus/src'
 import { AppBskyFeedRepost } from '@atproto/api'
 import * as db from '../../database.js'
+import { Batcher } from '../batcher.js'
+import { Database } from '../../types/database'
+import { InsertObject } from 'kysely/dist/cjs/parser/insert-values-parser'
+import { sql } from 'kysely'
+
+const batcher = new Batcher<InsertObject<Database, 'reposts'>>()
 
 export async function onRepostRecord(evt: RecordEvent) {
   const _uri = `at://${evt.did}/${evt.collection}/${evt.rkey}`
@@ -8,21 +14,24 @@ export async function onRepostRecord(evt: RecordEvent) {
     const res = AppBskyFeedRepost.validateRecord(evt.record)
     if (res.success) {
       const record = evt.record as AppBskyFeedRepost.Record
-      await db
-        .inst()
-        .insertInto('reposts')
-        .values({
-          _uri,
-          _repo: evt.did,
-          _rkey: evt.rkey,
-          subject: record.subject.uri,
-          createdAt: new Date(record.createdAt),
-        })
-        .onDuplicateKeyUpdate({
-          subject: record.subject.uri,
-          createdAt: new Date(record.createdAt),
-        })
-        .execute()
+      const value = {
+        _uri,
+        _repo: evt.did,
+        _rkey: evt.rkey,
+        subject: record.subject.uri,
+        createdAt: new Date(record.createdAt),
+      }
+      await batcher.add(value, async (values) => {
+        await db
+          .inst()
+          .insertInto('reposts')
+          .values(values)
+          .onDuplicateKeyUpdate((_eb) => ({
+            subject: sql.raw(`VALUES(subject)`),
+            createdAt: sql.raw(`VALUES(createdAt)`),
+          }))
+          .execute()
+      })
     } else {
       console.error('invalid repost record for', _uri)
       console.error(evt)

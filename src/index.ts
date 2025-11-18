@@ -188,7 +188,7 @@ app.get('/followers/:handle', async (req: Request, res: Response) => {
   }
 })
 
-const server = app.listen(PORT, async () => {
+/*const server =*/ app.listen(PORT, async () => {
   console.log(`Server is running on http://localhost:${PORT}`)
   await db.start()
   console.log(`Database connection established`)
@@ -196,34 +196,34 @@ const server = app.listen(PORT, async () => {
   console.log(`Connected to nexus at http://localhost:${NEXUS_PORT}`)
 })
 
-// Graceful shutdown handler
-async function shutdown(signal: string) {
-  console.log(`\n${signal} received. Starting graceful shutdown...`)
+// // Graceful shutdown handler
+// async function shutdown(signal: string) {
+//   console.log(`\n${signal} received. Starting graceful shutdown...`)
 
-  // Stop accepting new requests
-  server.close(() => {
-    console.log('HTTP server closed')
-  })
+//   // Stop accepting new requests
+//   server.close(() => {
+//     console.log('HTTP server closed')
+//   })
 
-  try {
-    // Stop the indexer
-    console.log('Stopping indexer...')
-    await indexer.destroy()
-    console.log('Indexer stopped')
+//   try {
+//     // Stop the indexer
+//     console.log('Stopping indexer...')
+//     await indexer.destroy()
+//     console.log('Indexer stopped')
 
-    // Close database connection
-    console.log('Closing database connection...')
-    await db.destroy()
-    console.log('Database connection closed')
+//     // Close database connection
+//     console.log('Closing database connection...')
+//     await db.destroy()
+//     console.log('Database connection closed')
 
-    console.log('Graceful shutdown complete')
-    process.exit(0)
-  } catch (error) {
-    console.error('Error during shutdown:', error)
-    process.exit(1)
-  }
-}
+//     console.log('Graceful shutdown complete')
+//     process.exit(0)
+//   } catch (error) {
+//     console.error('Error during shutdown:', error)
+//     process.exit(1)
+//   }
+// }
 
-// Listen for termination signals
-process.on('SIGINT', () => shutdown('SIGINT'))
-process.on('SIGTERM', () => shutdown('SIGTERM'))
+// // Listen for termination signals
+// process.on('SIGINT', () => shutdown('SIGINT'))
+// process.on('SIGTERM', () => shutdown('SIGTERM'))
