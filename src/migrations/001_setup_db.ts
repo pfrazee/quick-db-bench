@@ -3,9 +3,10 @@ import { CreateTableBuilder, Kysely, sql } from 'kysely'
 export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
     .createTable('profiles')
-    .addColumn('_repo', 'varchar(255)', (col: any) =>
-      col.notNull().primaryKey()
+    .addColumn('_id', 'bigint', (col) =>
+      col.autoIncrement().primaryKey().notNull()
     )
+    .addColumn('_repo', 'varchar(255)', (col: any) => col.notNull())
     .addColumn('_indexedAt', 'timestamp', (col: any) =>
       col
         .defaultTo(sql`CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP`)
@@ -18,22 +19,10 @@ export async function up(db: Kysely<any>): Promise<void> {
     .execute()
 
   await db.schema
-    .createIndex('profiles_handle_index')
-    .on('profiles')
-    .column('handle')
-    .execute()
-
-  await db.schema
     .createTable('follows')
     .$call(addCommonFields)
     .addColumn('subject', 'varchar(255)', (col) => col.notNull())
     .addColumn('createdAt', 'timestamp')
-    .execute()
-
-  await db.schema
-    .createIndex('follows_subject_index')
-    .on('follows')
-    .column('subject')
     .execute()
 
   await db.schema
@@ -45,22 +34,10 @@ export async function up(db: Kysely<any>): Promise<void> {
     .execute()
 
   await db.schema
-    .createIndex('posts_repo_index')
-    .on('posts')
-    .column('_repo')
-    .execute()
-
-  await db.schema
     .createTable('likes')
     .$call(addCommonFields)
     .addColumn('subject', 'varchar(255)', (col) => col.notNull())
     .addColumn('createdAt', 'timestamp')
-    .execute()
-
-  await db.schema
-    .createIndex('likes_subject_index')
-    .on('likes')
-    .column('subject')
     .execute()
 
   await db.schema
@@ -71,17 +48,14 @@ export async function up(db: Kysely<any>): Promise<void> {
     .execute()
 
   await db.schema
-    .createIndex('reposts_subject_index')
-    .on('reposts')
-    .column('subject')
-    .execute()
-
-  await db.schema
     .createTable('threadgates')
     .$call(addCommonFields)
     .addColumn('rules', 'json')
     .addColumn('createdAt', 'timestamp')
     .execute()
+
+  await addRequiredIndexes(db)
+  await addOptionalIndexes(db)
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
@@ -95,7 +69,10 @@ export async function down(db: Kysely<any>): Promise<void> {
 
 function addCommonFields(builder: CreateTableBuilder<any>) {
   return builder
-    .addColumn('_uri', 'varchar(255)', (col: any) => col.notNull().primaryKey())
+    .addColumn('_id', 'bigint', (col) =>
+      col.autoIncrement().primaryKey().notNull()
+    )
+    .addColumn('_uri', 'varchar(255)', (col: any) => col.notNull())
     .addColumn('_repo', 'varchar(255)', (col: any) => col.notNull())
     .addColumn('_rkey', 'varchar(255)', (col: any) => col.notNull())
     .addColumn('_indexedAt', 'timestamp', (col: any) =>
@@ -103,4 +80,90 @@ function addCommonFields(builder: CreateTableBuilder<any>) {
         .defaultTo(sql`CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP`)
         .notNull()
     )
+}
+async function addRequiredIndexes(db: Kysely<any>): Promise<void> {
+  await db.schema
+    .createIndex('profiles_repo_index')
+    .on('profiles')
+    .column('_repo')
+    .unique()
+    .execute()
+
+  await db.schema
+    .createIndex('follows_uri_index')
+    .on('follows')
+    .column('_uri')
+    .unique()
+    .execute()
+
+  await db.schema
+    .createIndex('posts_uri_index')
+    .on('posts')
+    .column('_uri')
+    .unique()
+    .execute()
+
+  await db.schema
+    .createIndex('likes_uri_index')
+    .on('likes')
+    .column('_uri')
+    .unique()
+    .execute()
+
+  await db.schema
+    .createIndex('reposts_uri_index')
+    .on('reposts')
+    .column('_uri')
+    .unique()
+    .execute()
+}
+
+async function addOptionalIndexes(db: Kysely<any>): Promise<void> {
+  await db.schema
+    .createIndex('profiles_handle_index')
+    .on('profiles')
+    .column('handle')
+    .execute()
+
+  await db.schema
+    .createIndex('follows_repo_index')
+    .on('follows')
+    .column('_repo')
+    .execute()
+
+  await db.schema
+    .createIndex('follows_subject_index')
+    .on('follows')
+    .column('subject')
+    .execute()
+
+  await db.schema
+    .createIndex('posts_repo_index')
+    .on('posts')
+    .column('_repo')
+    .execute()
+
+  await db.schema
+    .createIndex('likes_repo_index')
+    .on('likes')
+    .column('_repo')
+    .execute()
+
+  await db.schema
+    .createIndex('likes_subject_index')
+    .on('likes')
+    .column('subject')
+    .execute()
+
+  await db.schema
+    .createIndex('reposts_repo_index')
+    .on('reposts')
+    .column('_repo')
+    .execute()
+
+  await db.schema
+    .createIndex('reposts_subject_index')
+    .on('reposts')
+    .column('subject')
+    .execute()
 }
